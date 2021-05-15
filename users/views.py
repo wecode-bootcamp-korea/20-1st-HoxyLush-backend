@@ -33,8 +33,7 @@ class SignUpView(View):
             if User.objects.filter(phone_number=data.get('phone_number')).exists() and data.get('phone_number') != None:
                 return JsonResponse({'MESSAGE': 'ALREADY_EXISTS'}, status = 400)
 
-            if User.objects.filter(nickname=data.get('nickname')).exists()\
-                and data.get('nickname') != None:
+            if User.objects.filter(nickname=data.get('nickname')).exists() and data.get('nickname') != None:
                 return JsonResponse({'MESSAGE' : 'ALREADY_EXISTS'}, status = 400)
 
             hashed_password= bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")

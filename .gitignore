@@ -16,7 +16,7 @@ media
 # in your Git repository. Update and uncomment the following line accordingly.
 # <django-project-name>/staticfiles/
 
-20200514.sql
+20210515.sql
 
 ### Django.Python Stack ###
 # Byte-compiled / optimized / DLL files
