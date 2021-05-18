@@ -41,3 +41,13 @@ class ProductListView(View):
             } for product in products]
         
         return JsonResponse({'product_info' : product_list}, status = 200)
+
+class LikeView(View):
+    @login_required
+    def get(self, request):
+        pass
+
+
+
+    def post(self, request):
+        pass
