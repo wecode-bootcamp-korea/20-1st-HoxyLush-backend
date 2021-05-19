@@ -106,4 +106,3 @@ class ProductLikeView(View):
             return JsonResponse({'Message' : 'KEY_ERROR'}, status = 400)
 
         return JsonResponse({'Message' : 'SUCCESS'}, status = 200)
-        return JsonResponse({'product_info' : product_list}, status = 200)
