@@ -64,14 +64,13 @@ class ProductLikeView(View):
         data           = json.loads(request.body)
         product_id     = data.get('product_id')
         product        = Product.objects.get(id=product_id)
-        products       = Product.objects.all()
         like_list      = request.user.product_set.all()
 
         if Like.objects.filter(product_id=product_id).exists():
-            user.product_set.remove(product_id)
+            request.user.product_set.remove(product_id)
 
         else:    
-            user.product_set.add(product_id)
+            request.user.product_set.add(product_id)
 
         like_items = [{
             'name'        : product.name, 
