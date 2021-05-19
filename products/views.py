@@ -1,12 +1,10 @@
 import json
 
-from django.shortcuts       import get_object_or_404
 from django.http            import JsonResponse
 from django.views           import View
 from django.db.models       import Q
 
 from products.models        import Category, Product, ProductImage, SubCategory, ProductTag, Tag, Like, User
-
 from util.utils             import login_required
 
 class ProductListView(View):
@@ -43,40 +41,37 @@ class ProductListView(View):
             'tag'    : [{'id' : tag.id, 'tag': tag.name} for tag in product.tag_set.all()]
             } for product in products]
         
-        return JsonResponse({'product_info' : product_list}, status = 200)
+        return JsonResponse({'Product_Info' : product_list}, status = 200)
 
 class ProductLikeView(View):
     @login_required
-    def get(self, request):     #전체 찜상품 조회기능
-        like_list   = request.user.product_set.all()
+    def get(self, request):
+        like_list      = request.user.product_set.all()
         
         like_items = [{
+            'product_id'  : product.id,
             'name'        : product.name, 
             'hashtag'     : product.hashtag,
             'price'       : product.productoption_set.first().price,
             'image_url'   : product.productimage_set.first().image_url,
         }for product in like_list]
         
-        return JsonResponse({'like_items' : like_items}, status = 200)
+        return JsonResponse({'Like_Items' : like_items}, status = 200)
     
     @login_required
-    def post(self,request):     #찜 추가 및 삭제 기능
-        data           = json.loads(request.body)
-        product_id     = data.get('product_id')
-        product        = Product.objects.get(id=product_id)
-        like_list      = request.user.product_set.all()
+    def post(self,request):
+        try:
+            data           = json.loads(request.body)
+            product_id     = data.get('product_id')
+            like_list      = request.user.product_set.all()
 
-        if Like.objects.filter(product_id=product_id).exists():
-            request.user.product_set.remove(product_id)
+            if Like.objects.filter(product_id=product_id, user=request.user).exists():
+                request.user.product_set.remove(product_id)
 
-        else:    
-            request.user.product_set.add(product_id)
+            else:    
+                request.user.product_set.add(product_id)
 
-        like_items = [{
-            'name'        : product.name, 
-            'hashtag'     : product.hashtag,
-            'price'       : product.productoption_set.first().price,
-            'image_url'   : product.productimage_set.first().image_url,
-        }for product in like_list]
+        except KeyError:
+            return JsonResponse({'Message' : 'KEY_ERROR'}, status = 400)
 
-        return JsonResponse({'like_items' : like_items}, status = 200)
+        return JsonResponse({'Message' : 'SUCCESS'}, status = 200)
