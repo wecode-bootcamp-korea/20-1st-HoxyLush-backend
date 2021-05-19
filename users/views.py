@@ -3,12 +3,14 @@ import bcrypt
 import jwt
 import re
 
-from django.views         import View
-from django.http          import JsonResponse
-from json.decoder         import JSONDecodeError
+from django.views          import View
+from django.http           import JsonResponse
+from json.decoder          import JSONDecodeError
 
-from users.models import User
-from my_settings  import SECRET_KEY, ALGORITHM
+from users.models          import User
+from orders.models         import Order, OrderStatus
+from orders.views          import CartView
+from my_settings           import SECRET_KEY, ALGORITHM
 
 
 class SignUpView(View):
@@ -40,7 +42,7 @@ class SignUpView(View):
 
             hashed_password= bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-            User.objects.create(
+            user = User.objects.create(
                 account      = account,
                 password     = hashed_password,
                 email        = email,
@@ -48,6 +50,12 @@ class SignUpView(View):
                 nickname     = nickname,
                 address      = address
                 )
+
+            Order.objects.create(
+                user        = user,
+                order_status= OrderStatus.objects.get(status=CartView.ORDER_STATUS)
+                )
+
             return JsonResponse({"MESSAGE" : "SUCCESS"}, status = 201)
 
         except KeyError:
