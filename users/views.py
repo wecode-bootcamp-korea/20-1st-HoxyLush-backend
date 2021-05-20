@@ -3,12 +3,12 @@ import bcrypt
 import jwt
 import re
 
-from django.views         import View
-from django.http          import JsonResponse
-from json.decoder         import JSONDecodeError
+from django.views          import View
+from django.http           import JsonResponse
+from json.decoder          import JSONDecodeError
 
-from users.models import User
-from my_settings  import SECRET_KEY, ALGORITHM
+from users.models          import User
+from my_settings           import SECRET_KEY, ALGORITHM
 
 class SignUpView(View):
     def post(self, request):
@@ -47,6 +47,7 @@ class SignUpView(View):
                 nickname     = nickname,
                 address      = address
                 )
+
             return JsonResponse({"MESSAGE" : "SUCCESS"}, status = 201)
 
         except KeyError:
