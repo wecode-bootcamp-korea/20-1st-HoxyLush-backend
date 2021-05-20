@@ -8,8 +8,6 @@ from django.http           import JsonResponse
 from json.decoder          import JSONDecodeError
 
 from users.models          import User
-from orders.models         import Order, OrderStatus
-from orders.views          import CartView
 from my_settings           import SECRET_KEY, ALGORITHM
 
 
@@ -42,18 +40,13 @@ class SignUpView(View):
 
             hashed_password= bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-            user = User.objects.create(
+            User.objects.create(
                 account      = account,
                 password     = hashed_password,
                 email        = email,
                 phone_number = phone_number,
                 nickname     = nickname,
                 address      = address
-                )
-
-            Order.objects.create(
-                user        = user,
-                order_status= OrderStatus.objects.get(status=CartView.ORDER_STATUS)
                 )
 
             return JsonResponse({"MESSAGE" : "SUCCESS"}, status = 201)
