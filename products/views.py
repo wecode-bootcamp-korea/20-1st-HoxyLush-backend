@@ -13,6 +13,7 @@ class ProductListView(View):
         category_id       = request.GET.get('category_id')
         sub_category_id   = request.GET.get('sub_category_id')
         keyword           = request.GET.get('keyword')
+        hit               = request.GET.get('hit')
         pagination        = int(request.GET.get('pagination', 0))
         limit             = int(request.GET.get('limit', 4))
         offset            = pagination * 4
@@ -27,9 +28,12 @@ class ProductListView(View):
                 Q(name__contains = keyword) |
                 Q(hashtag__contains = keyword)).distinct()
 
+        elif hit:
+            products = Product.objects.order_by('hit')
+
         else:
             products = Product.objects.all()[offset:offset+limit]
-
+            
         product_list = [{
             'id'            : product.id,
             'name'          : product.name,
