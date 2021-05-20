@@ -23,7 +23,7 @@ class ProductListView(View):
                 Q(sub_category_id = sub_category_id))[offset:offset+limit]
 
         elif keyword:
-                products = Product.objects.filter(name__contains = keyword)
+            products = Product.objects.filter(name__contains = keyword)
             
         else:
             products = Product.objects.all()[offset:offset+limit]
