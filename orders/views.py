@@ -3,6 +3,7 @@ from json.decoder         import JSONDecodeError
 
 from django.http.response import JsonResponse
 from django.views         import View
+from django.db            import transaction
 
 from orders.models        import Order, OrderItem, OrderStatus
 from products.models      import ProductOption
@@ -46,26 +47,28 @@ class CartView(View):
             data                   = json.loads(request.body)
             option_id              = data.get('option_id')
             quantity               = data.get('quantity')
-            product_option         = ProductOption.objects.get(id=option_id)
-            order_status           = OrderStatus.objects.get(status=self.ORDER_STATUS)
-            order, _               = Order.objects.get_or_create(user=request.user, order_status=order_status)
 
-            order_item, is_created = OrderItem.objects.get_or_create(
-                product            = product_option.product,
-                order              = order,
-                product_option_id  = option_id,
-                defaults           = {
-                    'price'    : 0,
-                    'quantity' : 0
-                }
-            )
+            with transaction.atomic():
+                product_option         = ProductOption.objects.get(id=option_id)
+                order_status           = OrderStatus.objects.get(status=self.ORDER_STATUS)
+                order, _               = Order.objects.get_or_create(user=request.user, order_status=order_status)
 
-            if is_created:
-                order_item.quantity  = quantity
-            else:
-                order_item.quantity += quantity
-            order_item.price         = order_item.quantity * product_option.price
-            order_item.save()
+                order_item, is_created = OrderItem.objects.get_or_create(
+                    product            = product_option.product,
+                    order              = order,
+                    product_option_id  = option_id,
+                    defaults           = {
+                        'price'    : 0,
+                        'quantity' : 0
+                    }
+                )
+
+                if is_created:
+                    order_item.quantity  = quantity
+                else:
+                    order_item.quantity += quantity
+                order_item.price         = order_item.quantity * product_option.price
+                order_item.save()
         except JSONDecodeError:
             return JsonResponse({'MESSAGES': 'EMPTY_ARGS_ERROR'}, status=400)
         except OrderItem.DoesNotExist:
