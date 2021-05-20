@@ -23,7 +23,7 @@ class ProductListView(View):
                 Q(sub_category_id = sub_category_id))[offset:offset+limit]
 
         elif keyword:
-            products= Product.objects.filter(name__contains = keyword)
+                products = Product.objects.filter(name__contains = keyword)
             
         else:
             products = Product.objects.all()[offset:offset+limit]
@@ -72,6 +72,7 @@ class ProductDetailView(View):
                 } for ingredient in product.ingredient_set.all()],
             'tag'                  : [tag.name for tag in product.tag_set.all()]
                 }
+
         return JsonResponse({'result' : result}, status=200)
 
 class ProductLikeView(View):
@@ -104,5 +105,8 @@ class ProductLikeView(View):
 
         except KeyError:
             return JsonResponse({'Message' : 'KEY_ERROR'}, status = 400)
+
+        except Product.DoesNotExist:
+            return JsonResponse({'Message' : 'INVALID_PRODUCT'}, status = 404)
 
         return JsonResponse({'Message' : 'SUCCESS'}, status = 200)
