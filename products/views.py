@@ -23,8 +23,10 @@ class ProductListView(View):
                 Q(sub_category_id = sub_category_id))[offset:offset+limit]
 
         elif keyword:
-            products = Product.objects.filter(name__contains = keyword)
-            
+            products = Product.objects.filter(
+                Q(name__contains = keyword) |
+                Q(hashtag__contains = keyword)).distinct()
+
         else:
             products = Product.objects.all()[offset:offset+limit]
 
@@ -40,7 +42,7 @@ class ProductListView(View):
                 } for option in product.productoption_set.all()],
             'image_url'     : product.productimage_set.first().image_url,
             'tag'    : [{'id' : tag.id, 'tag': tag.name} for tag in product.tag_set.all()]
-            } for product in products]
+            } for product in products]    
         
         return JsonResponse({'Product_Info' : product_list}, status = 200)
 
@@ -54,7 +56,8 @@ class ProductDetailView(View):
             'hashtag'              : product.hashtag,
             'hit'                  : product.hit,
             'video_url'            : product.video_url,
-            'product_options'      : [{ 
+            'product_options'      : [{
+                'option_id'     : productoption.id,
                 'price'         : productoption.price,
                 'quantity'      : productoption.quantity,
                 'weight'        : productoption.weight
